@@ -10,13 +10,16 @@ import { useHistPeriod } from '@/hooks/useHistPeriod'
 import { useEntryForm } from '@/hooks/useEntryForm'
 import { useViewTotals } from '@/hooks/useViewTotals'
 import { useEntryManager } from '@/hooks/useEntryManager'
+import { useRemainingHours } from '@/hooks/useRemainingHours'
 
 import type { ViewType } from '@/types'
 
 function App() {
   const { payPeriod, calculateEntryValue, refreshPayPeriod } = usePayPeriod();
   const { viewTotals, fetchViewTotals } = useViewTotals();
+  const { remainingHours, refreshRemainingHours } = useRemainingHours();
   const [view, setView] = useState<ViewType>('period');
+  const [currentViewDate, setCurrentViewDate] = useState<string>('');
   const { allPeriods, selectedPeriodID, setSelectedPeriodID } = useHistPeriod();
   const {
     entryData,
@@ -30,13 +33,32 @@ function App() {
     entries,
     entriesLoading,
     fetchEntries,
-    handleEditEntry,
-    handleSubmitEntry,
-    handleDeleteEntry
+    handleEditEntry: originalHandleEditEntry,
+    handleSubmitEntry: originalHandleSubmitEntry,
+    handleDeleteEntry: originalHandleDeleteEntry
   } = useEntryManager(view, entryData, setFormData, refreshPayPeriod, resetEntryForm);
+
+  const handleEditEntry = originalHandleEditEntry;
+
+  const handleSubmitEntry = async (event: React.FormEvent) => {
+    await originalHandleSubmitEntry(event);
+    refreshRemainingHours();
+  };
+
+  const handleDeleteEntry = async (id: string) => {
+    await originalHandleDeleteEntry(id);
+    refreshRemainingHours();
+  };
 
   const handleViewChange = (newView: ViewType, date?: string) => {
     setView(newView)
+    if (date) {
+      setCurrentViewDate(date)
+    } else if (newView === 'day') {
+      setCurrentViewDate(new Date().toISOString().split('T')[0])
+    } else {
+      setCurrentViewDate('')
+    }
     fetchEntries(newView, date);
     fetchViewTotals(newView, date);
   }
@@ -46,10 +68,12 @@ function App() {
     if (periodID) {
       const period = allPeriods.find(p => p.id === periodID);
       if (period) {
+        setCurrentViewDate(period.start)
         fetchEntries('period', period.start);
         fetchViewTotals('period', period.start);
       }
     } else {
+      setCurrentViewDate('')
       fetchEntries('period', '');
       fetchViewTotals('period', '');
     }
@@ -88,6 +112,8 @@ function App() {
                 gross: 0,
               }}
               isEditMode={isEditMode}
+              currentViewDate={currentViewDate}
+              remainingHours={remainingHours}
             />
           </AuthGuard>} />
         <Route path="/login" element={<LoginForm />} />

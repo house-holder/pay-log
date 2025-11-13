@@ -1,5 +1,5 @@
 import { format } from "date-fns"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 // shadcn
 import { Input } from "@/components/ui/input"
@@ -14,8 +14,15 @@ import FormSelector from "@/components/FormSelector"
 import InputTypes from "@/components/inputTypes"
 import ViewSelector from "@/components/ViewSelector"
 import EntriesTable from "@/components/EntriesTable"
-import { formatDateRange } from "@/utils/frontend"
+import { formatDateRange, fmtDate } from "@/utils/frontend"
 import DaySelector from "@/components/DaySelector"
+import {
+    Menubar,
+    MenubarCheckboxItem,
+    MenubarContent,
+    MenubarMenu,
+    MenubarTrigger,
+} from "@/components/ui/menubar"
 
 interface FormProps {
     input: Entry;
@@ -36,6 +43,8 @@ interface FormProps {
     selectedPeriodID?: number | null;
     setSelectedPeriodID?: (id: number | null) => void;
     selectedPeriod?: HistPayPeriod;
+    currentViewDate?: string;
+    remainingHours?: number | null;
 }
 
 function MainForm({
@@ -57,10 +66,29 @@ function MainForm({
     selectedPeriodID,
     selectedPeriod,
     setSelectedPeriodID,
+    currentViewDate = '',
+    remainingHours = null,
 }: FormProps) {
     const [selectedDate, setSelectedDate] = useState(() => {
         return new Date().toISOString().split('T')[0]
     })
+    const [privacyMode, setPrivacyMode] = useState(() => {
+        const saved = localStorage.getItem('privacyMode')
+        return saved === 'true'
+    })
+
+    const handlePrivacyModeChange = (checked: boolean | "indeterminate") => {
+        const enabled = checked === true
+        setPrivacyMode(enabled)
+        localStorage.setItem('privacyMode', enabled.toString())
+    }
+
+    // Sync selectedDate with currentViewDate when in day view
+    useEffect(() => {
+        if (view === 'day' && currentViewDate) {
+            setSelectedDate(currentViewDate)
+        }
+    }, [view, currentViewDate])
 
     const handleDateChange = (date: string) => {
         setSelectedDate(date)
@@ -69,25 +97,87 @@ function MainForm({
         }
     }
 
+    const calculatePeriodTotals = (entries: Entry[]) => {
+        let flight_hours = 0
+        let ground_hours = 0
+        let sim_hours = 0
+        let admin_hours = 0
+        let gross = 0
+        const cfiRate = 26.50
+        const adminRate = 13.75
+
+        entries.forEach(entry => {
+            const fh = entry.flight_hours || 0
+            const gh = entry.ground_hours || 0
+            const sh = entry.sim_hours || 0
+            let ah = entry.admin_hours || 0
+
+            // Handle admin entries with ride_count
+            if (entry.type === 'admin' && entry.ride_count && entry.ride_count > 0) {
+                ah = entry.ride_count * 0.2
+            }
+
+            flight_hours += fh
+            ground_hours += gh
+            sim_hours += sh
+            admin_hours += ah
+
+            const cfiHours = fh + gh + sh
+            const cfiPay = cfiHours * cfiRate
+            const adminPay = ah * adminRate
+            gross += cfiPay + adminPay
+        })
+
+        const all_hours = flight_hours + ground_hours + sim_hours + admin_hours
+
+        return {
+            flight_hours,
+            ground_hours,
+            sim_hours,
+            admin_hours,
+            all_hours,
+            gross
+        }
+    }
+
+    const periodTotals = selectedPeriod ? calculatePeriodTotals(entries) : null;
+
     const displayPeriod = selectedPeriod ? {
         start: selectedPeriod.start,
         end: selectedPeriod.end,
         all_hours: selectedPeriod.total_hours,
         gross: selectedPeriod.gross_earnings,
-        flight_hours: 0,
-        ground_hours: 0,
-        sim_hours: 0,
-        admin_hours: 0,
+        flight_hours: periodTotals?.flight_hours ?? 0,
+        ground_hours: periodTotals?.ground_hours ?? 0,
+        sim_hours: periodTotals?.sim_hours ?? 0,
+        admin_hours: periodTotals?.admin_hours ?? 0,
         remaining: 0
     } : payPeriod;
 
     return (
-        <div className="flex justify-center items-center mt-1.5">
-            <Card className="w-full max-w-4xl border-none bg-transparent" id="main-form"
+        <div className="flex flex-col items-center mt-1.5">
+            <div className="w-full max-w-4xl flex justify-start mb-1">
+                <div className="inline-block">
+                    <Menubar>
+                        <MenubarMenu>
+                            <MenubarTrigger>Settings</MenubarTrigger>
+                            <MenubarContent>
+                                <MenubarCheckboxItem
+                                    checked={privacyMode}
+                                    onCheckedChange={handlePrivacyModeChange}
+                                >
+                                    Privacy Mode
+                                </MenubarCheckboxItem>
+                            </MenubarContent>
+                        </MenubarMenu>
+                    </Menubar>
+                </div>
+            </div>
+            <Card className="w-full max-w-4xl border-none bg-transparent pt-0" id="main-form"
                 style={{
                     borderRadius: '21px',
                 }}>
-                <CardContent className="p-2 space-y-6">
+                <CardContent className="p-2 space-y-4">
                     <div className="display-flex height-20px flex-row">
                         <FormSelector
                             formData={input}
@@ -169,11 +259,51 @@ function MainForm({
                             )}
                         </div>
 
+                        {/* Remaining Hours - Only when view is 'period' and current period */}
+                        {view === 'period' && !selectedPeriodID && remainingHours !== null && (
+                            <div className="bg-muted/50 rounded-lg p-4" style={{ width: '50%' }}>
+                                <div className="text-sm text-muted-foreground mb-2">
+                                    Remaining Dual
+                                </div>
+                                <div
+                                    className="font-semibold mb-2"
+                                    style={{
+                                        color: remainingHours >= 3.0
+                                            ? 'var(--color-tokyo-green)'
+                                            : remainingHours >= 1.5
+                                                ? 'var(--color-tokyo-yellow)'
+                                                : 'var(--color-tokyo-red)',
+                                        fontSize: '30px'
+                                    }}
+                                >
+                                    {remainingHours.toFixed(1).padStart(4, ' ')}
+                                </div>
+                            </div>
+                        )}
+
                         {/* View Totals - Only when view is not 'period' */}
                         {view !== 'period' && viewTotals && (
                             <div className="bg-muted/50 rounded-lg p-4" style={{ width: '50%' }}>
                                 <div className="text-sm text-muted-foreground mb-2">
-                                    {view === 'day' ? 'Today' : view === 'week' ? 'Week' : 'All Time'}
+                                    {(() => {
+                                        if (view === 'day') {
+                                            const viewedDate = currentViewDate || selectedDate || input.date
+                                            const today = new Date()
+                                            today.setHours(0, 0, 0, 0)
+                                            const viewDateObj = new Date(viewedDate + 'T00:00:00')
+                                            viewDateObj.setHours(0, 0, 0, 0)
+
+                                            if (viewDateObj.getTime() === today.getTime()) {
+                                                return 'Today'
+                                            } else {
+                                                return fmtDate('default', viewDateObj)
+                                            }
+                                        } else if (view === 'week') {
+                                            return 'Week'
+                                        } else {
+                                            return 'All Time'
+                                        }
+                                    })()}
                                 </div>
                                 <div className="text-md font-semibold mb-2">
                                     {viewTotals.all_hours.toFixed(1).padStart(4, ' ')} -
@@ -210,6 +340,7 @@ function MainForm({
                             isLoading={entriesLoading}
                             onDeleteEntry={onDeleteEntry}
                             onEditEntry={onEditEntry}
+                            privacyMode={privacyMode}
                         />
                     </div>
                 </CardContent>

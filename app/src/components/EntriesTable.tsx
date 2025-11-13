@@ -1,15 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Entry } from "@/types";
+import { fmtCustomerName } from "@/utils/frontend";
 
 interface EntriesTableProps {
     entries: Entry[];
     isLoading: boolean;
     onDeleteEntry: (id: string) => void;
     onEditEntry: (id: string) => void;
+    privacyMode: boolean;
 }
 
-export default function EntriesTable({ entries, isLoading, onDeleteEntry, onEditEntry }: EntriesTableProps) {
+export default function EntriesTable({ entries, isLoading, onDeleteEntry, onEditEntry, privacyMode }: EntriesTableProps) {
     const fmtTime = (timeStr: string) => {
         timeStr = timeStr.replace(':', '');
         if (!timeStr) return '';
@@ -33,11 +35,6 @@ export default function EntriesTable({ entries, isLoading, onDeleteEntry, onEdit
         });
     };
 
-    const fmtName = (fullName: string | null) => {
-        if (!fullName || fullName.trim() === '') return '';
-        const parts = fullName.trim().split(' ');
-        return parts[parts.length - 1];
-    };
 
     if (isLoading) {
         return (
@@ -63,6 +60,11 @@ export default function EntriesTable({ entries, isLoading, onDeleteEntry, onEdit
         );
     }
 
+    const hasFlightHours = entries.some(entry => entry.flight_hours !== null && entry.flight_hours !== undefined && entry.flight_hours > 0);
+    const hasGroundHours = entries.some(entry => entry.ground_hours !== null && entry.ground_hours !== undefined && entry.ground_hours > 0);
+    const hasSimHours = entries.some(entry => entry.sim_hours !== null && entry.sim_hours !== undefined && entry.sim_hours > 0);
+    const hasAdminHours = entries.some(entry => entry.admin_hours !== null && entry.admin_hours !== undefined && entry.admin_hours > 0);
+
     return (
         <Card className="w-100% mb-0">
             <CardContent>
@@ -72,12 +74,11 @@ export default function EntriesTable({ entries, isLoading, onDeleteEntry, onEdit
                             <tr className="border-b">
                                 <th className="text-right table-cell-width-3"></th>
                                 <th className="text-left p-0 sm:table-cell">Time</th>
-                                <th className="text-left p-0">F</th>
-                                <th className="text-left p-0">G</th>
-                                <th className="text-left p-0 md:table-cell">S</th>
-                                <th className="text-left p-0 md:table-cell">A</th>
-                                <th className="text-left p-1 sm:table-cell">Customer</th>
-                                <th className="text-right p-0 sm:table-cell">Rides</th>
+                                {hasFlightHours && <th className="text-left p-0">F</th>}
+                                {hasGroundHours && <th className="text-left p-0">G</th>}
+                                {hasSimHours && <th className="text-left p-0 md:table-cell">S</th>}
+                                {hasAdminHours && <th className="text-left p-0 md:table-cell">A</th>}
+                                <th className="text-center p-1 sm:table-cell">Customer</th>
                                 <th className="text-left p-1 hidden lg:table-cell">Notes</th>
                                 <th className="text-right table-cell-width-3"></th>
                             </tr>
@@ -98,12 +99,11 @@ export default function EntriesTable({ entries, isLoading, onDeleteEntry, onEdit
                                             <div className="text-xs text-gray-500">{fmtTime(entry.time)}</div>
                                         </div>
                                     </td>
-                                    <td className="p-1">{fmtHours(entry.flight_hours)}</td>
-                                    <td className="p-1">{fmtHours(entry.ground_hours)}</td>
-                                    <td className="p-1 md:table-cell">{fmtHours(entry.sim_hours)}</td>
-                                    <td className="p-1 md:table-cell">{fmtHours(entry.admin_hours)}</td>
-                                    <td className="p-1 sm:table-cell">{fmtName(entry.customer)}</td>
-                                    <td className="p-2 text-right sm:table-cell">{entry.ride_count}</td>
+                                    {hasFlightHours && <td className="p-1">{fmtHours(entry.flight_hours)}</td>}
+                                    {hasGroundHours && <td className="p-1">{fmtHours(entry.ground_hours)}</td>}
+                                    {hasSimHours && <td className="p-1 md:table-cell">{fmtHours(entry.sim_hours)}</td>}
+                                    {hasAdminHours && <td className="p-1 md:table-cell">{fmtHours(entry.admin_hours)}</td>}
+                                    <td className="p-1 sm:table-cell text-center">{fmtCustomerName(entry.customer, privacyMode)}</td>
                                     <td className="p-1 hidden lg:table-cell max-w-xs truncate">{entry.notes || ''}</td>
                                     <td className="xs:table-cell xs:text-right table-cell-width-3">
                                         <Button

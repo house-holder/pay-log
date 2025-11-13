@@ -42,3 +42,32 @@ export const fmtDate = (format: string, date: Date) => {
 
 
 };
+
+export const fmtCustomerName = (fullName: string | null, privacyMode: boolean): string => {
+    if (!fullName || fullName.trim() === '') return '';
+    
+    const trimmed = fullName.trim();
+    const parts = trimmed.split(/\s+/);
+    
+    if (!privacyMode) {
+        return parts[parts.length - 1];
+    }
+    
+    if (parts.length < 2) {
+        return trimmed;
+    }
+    
+    const firstPart = parts[0];
+    const lastPart = parts[parts.length - 1];
+    
+    const isProperName = (str: string): boolean => {
+        return str.length > 0 && str[0] === str[0].toUpperCase() && 
+               str.slice(1) === str.slice(1).toLowerCase();
+    };
+    
+    if (isProperName(firstPart) && isProperName(lastPart)) {
+        return `${firstPart[0]}${lastPart[0]}`;
+    }
+    
+    return trimmed;
+};
