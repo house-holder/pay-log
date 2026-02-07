@@ -15,23 +15,23 @@ const newPayrateSQL = `
 
 // CreatePayRate -
 func (database *Database) CreatePayRate(r PayRate) Response {
-	newID = 1 // TODO: obtain ID by querying table?
-	result, err := database.Exec(newPayrateSQL,
-		newID,
-		r.EffectiveDate,
-		r.CFIRate,
-		r.AdminRate,
-		r.LastUpdated,
-	)
-	if err != nil {
-		fmt.Printf("Error! %v\n", err)
-		return Response{
-			Status: "Error",
-			Message: fmt.Sprintf("error updating payrates: %v", err)
-		}
-	}
-
-	// TODO: this line and below are still unchanged
+	// newID = 1 // TODO: obtain ID by querying table?
+	// result, err := database.Exec(newPayrateSQL,
+	// 	newID,
+	// 	r.EffectiveDate,
+	// 	r.CFIRate,
+	// 	r.AdminRate,
+	// 	r.LastUpdated,
+	// )
+	// if err != nil {
+	// 	fmt.Printf("Error! %v\n", err)
+	// 	return Response{
+	// 		Status: "Error",
+	// 		Message: fmt.Sprintf("error updating payrates: %v", err)
+	// 	}
+	// }
+	//
+	// // TODO: this line and below are still unchanged
 	return Response{
 		Status:  "OK",
 		Message: "Pay rate created (TODO)",
@@ -43,11 +43,11 @@ func (database *Database) GetRates(checkID int) ([]PayRate, error) {
 	return nil, nil
 }
 
-// UpdatePayRates -
-func (database *Database) UpdatePayRates() error {
-	// TODO: should present user with current rates pre-filled? or perhaps used
-	// as shadow vals and then each can be overridden/written in by user
-}
+// // UpdatePayRates -
+// func (database *Database) UpdatePayRates() error {
+// 	// TODO: should present user with current rates pre-filled? or perhaps used
+// 	// as shadow vals and then each can be overridden/written in by user
+// }
 
 // // UpdatePayPeriodStatus -
 // func (db *Database) UpdatePayPeriodStatus() error {

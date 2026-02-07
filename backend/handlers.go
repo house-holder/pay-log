@@ -66,7 +66,7 @@ func getCredentials() (string, string) {
 	return os.Getenv("PAYUN"), os.Getenv("PAYPS")
 }
 
-func setupLogin() http.HandlerFunc {
+func setupLogin(isProd bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		uname, pw := getCredentials()
 
@@ -80,7 +80,7 @@ func setupLogin() http.HandlerFunc {
 					Value:    session.ID,
 					Expires:  time.Now().Add(SessionDuration),
 					HttpOnly: true,
-					Secure:   true,
+					Secure:   isProd,
 					SameSite: http.SameSiteStrictMode,
 				})
 				w.Header().Set("Content-Type", "application/json")

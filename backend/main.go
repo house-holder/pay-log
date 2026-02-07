@@ -81,7 +81,7 @@ func main() {
 	}
 
 	http.HandleFunc("/api/auth-ok", auth(setupAuthOK()))
-	http.HandleFunc("/api/login", setupLogin())
+	http.HandleFunc("/api/login", setupLogin(isProd))
 	http.HandleFunc("/api/new", auth(setupNewEntry(database)))
 	http.HandleFunc("/api/edit", auth(setupEditEntry(database)))
 	http.HandleFunc("/api/delete", auth(setupDeleteEntry(database)))
