@@ -74,6 +74,7 @@ func main() {
 
 	env := os.Getenv("ENVIRONMENT")
 	isProd := env == "production"
+	DevMode = !isProd
 
 	port := cfg.Ports.Backend
 	if isProd && cfg.Ports.Production != "" {
@@ -102,9 +103,10 @@ func main() {
 
 	if !isProd {
 		c := cors.New(cors.Options{
-			AllowedOrigins: []string{allowedOriginLoc, allowedOriginLAN},
-			AllowedMethods: []string{"GET", "POST", "OPTIONS"},
-			AllowedHeaders: []string{"Content-Type"},
+			AllowedOrigins:   []string{allowedOriginLoc, allowedOriginLAN},
+			AllowedMethods:   []string{"GET", "POST", "PUT", "OPTIONS"},
+			AllowedHeaders:   []string{"Content-Type"},
+			AllowCredentials: true,
 		})
 		handler = c.Handler(handler)
 	}
