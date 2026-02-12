@@ -91,6 +91,8 @@ func main() {
 	http.HandleFunc("/api/periods", auth(setupGetAllPeriods(database)))
 	http.HandleFunc("/api/get-entries", auth(setupGetEntries(database)))
 	http.HandleFunc("/api/get-totals", auth(setupGetTotals(database)))
+	http.HandleFunc("/api/pay-rates", auth(setupCreatePayRate(database)))
+	http.HandleFunc("/api/pay-rates/current", auth(setupGetCurrentRates(database)))
 	fmt.Printf("\x1b[32m"+"running on 0.0.0.0:%s"+"\x1b[0m\n", port)
 	var handler http.Handler = http.DefaultServeMux
 	allowedOriginLoc := os.Getenv("ALLOWED_ORIGIN")

@@ -20,9 +20,12 @@ import {
     Menubar,
     MenubarCheckboxItem,
     MenubarContent,
+    MenubarItem,
     MenubarMenu,
+    MenubarSeparator,
     MenubarTrigger,
 } from "@/components/ui/menubar"
+import PayRateUpdater from "@/components/PayRateUpdater"
 
 interface FormProps {
     input: Entry;
@@ -45,6 +48,7 @@ interface FormProps {
     selectedPeriod?: HistPayPeriod;
     currentViewDate?: string;
     remainingHours?: number | null;
+    onRefreshPeriod?: () => void;
 }
 
 function MainForm({
@@ -68,6 +72,7 @@ function MainForm({
     setSelectedPeriodID,
     currentViewDate = '',
     remainingHours = null,
+    onRefreshPeriod,
 }: FormProps) {
     const [selectedDate, setSelectedDate] = useState(() => {
         return new Date().toISOString().split('T')[0]
@@ -76,6 +81,7 @@ function MainForm({
         const saved = localStorage.getItem('privacyMode')
         return saved === 'true'
     })
+    const [payRateModalOpen, setPayRateModalOpen] = useState(false)
 
     const handlePrivacyModeChange = (checked: boolean | "indeterminate") => {
         const enabled = checked === true
@@ -168,6 +174,10 @@ function MainForm({
                                 >
                                     Privacy Mode
                                 </MenubarCheckboxItem>
+                                <MenubarSeparator />
+                                <MenubarItem onClick={() => setPayRateModalOpen(true)}>
+                                    Manage Pay Rates
+                                </MenubarItem>
                             </MenubarContent>
                         </MenubarMenu>
                     </Menubar>
@@ -345,6 +355,12 @@ function MainForm({
                     </div>
                 </CardContent>
             </Card>
+
+            <PayRateUpdater
+                isOpen={payRateModalOpen}
+                onClose={() => setPayRateModalOpen(false)}
+                onRatesUpdated={() => onRefreshPeriod?.()}
+            />
         </div>
     )
 }

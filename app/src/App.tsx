@@ -15,7 +15,7 @@ import { useRemainingHours } from '@/hooks/useRemainingHours'
 import type { ViewType } from '@/types'
 
 function App() {
-  const { payPeriod, calculateEntryValue, refreshPayPeriod } = usePayPeriod();
+  const { payPeriod, calculateEntryValue, refreshPayPeriod, currentRates } = usePayPeriod();
   const { viewTotals, fetchViewTotals } = useViewTotals();
   const { remainingHours, refreshRemainingHours } = useRemainingHours();
   const [view, setView] = useState<ViewType>('period');
@@ -114,6 +114,7 @@ function App() {
               isEditMode={isEditMode}
               currentViewDate={currentViewDate}
               remainingHours={remainingHours}
+              onRefreshPeriod={refreshPayPeriod}
             />
           </AuthGuard>} />
         <Route path="/login" element={<LoginForm />} />

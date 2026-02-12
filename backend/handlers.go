@@ -132,6 +132,73 @@ func setupDeleteEntry(database *db.Database) http.HandlerFunc {
 	}
 }
 
+func setupCreatePayRate(database *db.Database) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+			return
+		}
+
+		var rate db.PayRate
+		if err := json.NewDecoder(r.Body).Decode(&rate); err != nil {
+			toJSON(w, db.Response{
+				Status:  "ERROR",
+				Message: "Invalid JSON format",
+			})
+			return
+		}
+
+		if rate.EffectiveDate == "" {
+			toJSON(w, db.Response{
+				Status:  "ERROR",
+				Message: "effective_date is required",
+			})
+			return
+		}
+
+		if rate.CFIRate <= 0 && rate.AdminRate <= 0 {
+			toJSON(w, db.Response{
+				Status:  "ERROR",
+				Message: "At least one rate must be greater than 0",
+			})
+			return
+		}
+
+		response := database.CreatePayRate(rate)
+		toJSON(w, response)
+	}
+}
+
+func setupGetCurrentRates(database *db.Database) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+			return
+		}
+
+		date := r.URL.Query().Get("date")
+		if date == "" {
+			date = time.Now().In(time.Local).Format("2006-01-02")
+		}
+
+		rate, err := database.GetCurrentRates(date)
+		if err != nil {
+			toJSON(w, db.Response{
+				Status:  "ERROR",
+				Message: fmt.Sprintf("Failed to get current rates: %v", err),
+			})
+			return
+		}
+
+		data, _ := json.Marshal(rate)
+		toJSON(w, db.Response{
+			Status:  "OK",
+			Message: "Current rates retrieved",
+			Data:    data,
+		})
+	}
+}
+
 func setupCheckHealth(database *db.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		response := database.CheckHealth()
@@ -323,7 +390,8 @@ func setupGetTotals(database *db.Database) http.HandlerFunc {
 			return
 		}
 
-		totals = calculateTotalsFromEntries(entries)
+		rates, _ := database.GetCurrentRates(date)
+		totals = calculateTotalsFromEntries(entries, rates.CFIRate, rates.AdminRate)
 
 		data, _ := json.Marshal(totals)
 		toJSON(w, db.Response{
@@ -341,11 +409,9 @@ func safeFloat64(ptr *float64) float64 {
 	return 0.0
 }
 
-func calculateTotalsFromEntries(entries []db.Entry) map[string]interface{} {
+func calculateTotalsFromEntries(entries []db.Entry, cfiRate, adminRate float64) map[string]interface{} {
 	var flightHours, groundHours, simHours, adminHours, totalHours float64
 	var totalGross float64
-	cfiRate := 26.50
-	adminRate := 13.75
 
 	for _, entry := range entries {
 		fh := safeFloat64(entry.FlightHours)
