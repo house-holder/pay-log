@@ -8,7 +8,6 @@ import (
 
 	db "github.com/house-holder/pay-log/backend/database"
 	"github.com/joho/godotenv"
-	"github.com/rs/cors"
 	"go.yaml.in/yaml/v3"
 )
 
@@ -91,25 +90,8 @@ func main() {
 	http.HandleFunc("/api/get-totals", auth(setupGetTotals(database)))
 	http.HandleFunc("/api/pay-rates", auth(setupCreatePayRate(database)))
 	http.HandleFunc("/api/pay-rates/current", auth(setupGetCurrentRates(database)))
-	fmt.Printf("\x1b[32m"+"running on 0.0.0.0:%s"+"\x1b[0m\n", port)
-	var handler http.Handler = http.DefaultServeMux
-	allowedOriginLoc := os.Getenv("ALLOWED_ORIGIN")
 
-	if allowedOriginLoc == "" {
-		fmt.Println("ALLOWED_ORIGIN not set; defaulting to *")
-		allowedOriginLoc = "*"
-	}
-	allowedOriginLAN := fmt.Sprintf("http://10.0.0.8:%s", cfg.Ports.Frontend)
-
-	if !isProd {
-		c := cors.New(cors.Options{
-			AllowedOrigins:   []string{allowedOriginLoc, allowedOriginLAN},
-			AllowedMethods:   []string{"GET", "POST", "PUT", "OPTIONS"},
-			AllowedHeaders:   []string{"Content-Type"},
-			AllowCredentials: true,
-		})
-		handler = c.Handler(handler)
-	}
+	fmt.Printf("\x1b[32m"+"running (:%s)"+"\x1b[0m\n", port)
 
 	if isProd {
 		fs := http.FileServer(http.Dir(os.Getenv("STATIC_DIR")))
@@ -119,6 +101,5 @@ func main() {
 		fmt.Println("Dev mode: API-only ops")
 	}
 
-	log.Fatal(http.ListenAndServe(
-		fmt.Sprintf("0.0.0.0:%s", port), handler))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", port), nil))
 }
