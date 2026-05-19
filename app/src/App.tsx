@@ -15,7 +15,7 @@ import { useRemainingHours } from '@/hooks/useRemainingHours'
 import type { ViewType } from '@/types'
 
 function App() {
-  const { payPeriod, calculateEntryValue, refreshPayPeriod, currentRates } = usePayPeriod();
+  const { payPeriod, calculateEntryValue, refreshPayPeriod } = usePayPeriod();
   const { viewTotals, fetchViewTotals } = useViewTotals();
   const { remainingHours, refreshRemainingHours } = useRemainingHours();
   const [view, setView] = useState<ViewType>('period');

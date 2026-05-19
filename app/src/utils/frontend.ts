@@ -48,7 +48,7 @@ export const fmtCustomerName = (fullName: string | null, privacyMode: boolean): 
 	const parts = fullName.trim().split(/\s+/);
 
     if (!privacyMode) { return parts[parts.length - 1]; }
-    if (parts.length < 2) { return trimmed; }
+    if (parts.length < 2) { return fullName; }
 
 	return parts.map(p => p[0].toUpperCase()).join('');
 };
