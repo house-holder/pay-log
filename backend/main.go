@@ -101,5 +101,9 @@ func main() {
 		fmt.Println("Dev mode: API-only ops")
 	}
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", port), nil))
+	addr := fmt.Sprintf("127.0.0.1:%s", port)
+	if !isProd {
+		addr = fmt.Sprintf("0.0.0.0:%s", port)
+	}
+	log.Fatal(http.ListenAndServe(addr, nil))
 }
