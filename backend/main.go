@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"os"
 
+	db "github.com/house-holder/pay-log/backend/database"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
-	db "github.com/theHousedev/pay-log/backend/database"
 	"go.yaml.in/yaml/v3"
 )
 
@@ -23,8 +23,7 @@ type SiteConfig struct {
 }
 
 func loadConfig() (*SiteConfig, error) {
-	cfgPath := "../cfg.yaml"
-	data, err := os.ReadFile(cfgPath)
+	data, err := os.ReadFile(os.Getenv("CONFIG_PATH"))
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config: %w", err)
 	}
@@ -63,8 +62,7 @@ func main() {
 		log.Fatal("Error loading .env")
 	}
 
-	dbPath := "./pay_log.db"
-	database := openDB(dbPath)
+	database := openDB(os.Getenv("DATABASE_PATH"))
 	defer database.Close()
 
 	cfg, err := loadConfig()
@@ -114,9 +112,9 @@ func main() {
 	}
 
 	if isProd {
-		fs := http.FileServer(http.Dir("./app/dist"))
+		fs := http.FileServer(http.Dir(os.Getenv("STATIC_DIR")))
 		http.Handle("/", fs)
-		fmt.Println("Prod mode: serving ./app/dist")
+		fmt.Println("Prod mode")
 	} else {
 		fmt.Println("Dev mode: API-only ops")
 	}

@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	db "github.com/theHousedev/pay-log/backend/database"
+	db "github.com/house-holder/pay-log/backend/database"
 )
 
 func toJSON(w http.ResponseWriter, r db.Response) {
