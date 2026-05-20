@@ -1,17 +1,17 @@
 export const getBackendPath = (): string => {
-    const isProduction = window.location.hostname === 'pay.khouse.dev';
-    const isMobile = /iPhone|iPad/i.test(navigator.userAgent);
+	const isProduction = window.location.protocol === 'https:';
+	const isMobile = /iPhone|iPad/i.test(navigator.userAgent);
 
-    if (isProduction) {
-        return window.location.origin;
-    } else {
-        const backendPort = (globalThis as any).BACKEND_PORT;
-        const backendHost = isMobile ? '10.0.0.8' : 'localhost';
-        return `http://${backendHost}:${backendPort}`;
-    }
+	if (isProduction) {
+		return window.location.origin;
+	} else {
+		const backendPort = (globalThis as any).BACKEND_PORT;
+		const backendHost = isMobile ? '10.0.0.8' : 'localhost';
+		return `http://${backendHost}:${backendPort}`;
+	}
 };
 
 export const getAPIPath = (): string => {
-    const backendPath = getBackendPath();
-    return `${backendPath}/api`;
+	const backendPath = getBackendPath();
+	return `${backendPath}/api`;
 };

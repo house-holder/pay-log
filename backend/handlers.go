@@ -38,7 +38,6 @@ func setupNewEntry(database *db.Database) http.HandlerFunc {
 
 func setupAuthOK() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// If we reach here, the auth() middleware has already validated the session
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status": "authenticated"}`))
