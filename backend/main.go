@@ -71,7 +71,16 @@ func main() {
 
 	env := os.Getenv("ENVIRONMENT")
 	isProd := env == "production"
-	DevMode = !isProd
+	// auth bypass is opt-in: an unknown/typo'd ENVIRONMENT keeps auth on
+	DevMode = env == "development" || env == "dev"
+	if DevMode {
+		fmt.Println("\x1b[33m" + "auth DISABLED (dev mode)" + "\x1b[0m")
+	}
+	if isProd {
+		if uname, pw := getCredentials(); uname == "" || pw == "" {
+			log.Fatal("PAYUN and PAYPS must be set in production")
+		}
+	}
 
 	port := cfg.Ports.Backend
 	if isProd && cfg.Ports.Production != "" {
@@ -80,6 +89,7 @@ func main() {
 
 	http.HandleFunc("/api/auth-ok", auth(setupAuthOK()))
 	http.HandleFunc("/api/login", setupLogin(isProd))
+	http.HandleFunc("/api/logout", setupLogout(isProd))
 	http.HandleFunc("/api/new", auth(setupNewEntry(database)))
 	http.HandleFunc("/api/edit", auth(setupEditEntry(database)))
 	http.HandleFunc("/api/delete", auth(setupDeleteEntry(database)))

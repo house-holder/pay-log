@@ -79,7 +79,7 @@ func setupLogin(isProd bool) http.HandlerFunc {
 		if r.Method == "POST" {
 			usernameInput := r.FormValue("username")
 			passwordInput := r.FormValue("password")
-			if usernameInput == uname && passwordInput == pw {
+			if credentialsMatch(usernameInput, passwordInput, uname, pw) {
 				session := createSession(usernameInput)
 				http.SetCookie(w, &http.Cookie{
 					Name:     "session_id",
@@ -100,6 +100,29 @@ func setupLogin(isProd bool) http.HandlerFunc {
 		} else {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
+	}
+}
+
+func setupLogout(isProd bool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		if cookie, err := r.Cookie("session_id"); err == nil {
+			deleteSession(cookie.Value)
+		}
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session_id",
+			Value:    "",
+			MaxAge:   -1,
+			HttpOnly: true,
+			Secure:   isProd,
+			SameSite: http.SameSiteStrictMode,
+		})
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status": "logged out"}`))
 	}
 }
 
