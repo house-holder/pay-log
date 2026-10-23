@@ -24,20 +24,24 @@ function getConfig() {
   }
 }
 
+const cfg = getConfig()
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     host: '0.0.0.0',
-    port: parseInt(getConfig().ports.frontend),
-    allowedHosts: ['pay.khouse.dev', 'localhost', '127.0.0.1'],
-    hmr: false
+    port: parseInt(cfg.ports.frontend),
+    allowedHosts: true,
+    proxy: {
+      '/api': {
+        target: `http://127.0.0.1:${cfg.ports.backend}`,
+        changeOrigin: true,
+      }
+    }
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
-  define: {
-    BACKEND_PORT: JSON.stringify(getConfig().ports.backend),
-  }
 })
