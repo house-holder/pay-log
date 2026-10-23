@@ -161,7 +161,7 @@ function MainForm({
     } : payPeriod;
 
     return (
-        <div className="flex flex-col items-center mt-1.5">
+        <div className="flex flex-col items-center mt-1.5 px-4">
             <div className="w-full max-w-4xl flex justify-start mb-1">
                 <div className="inline-block">
                     <Menubar>
@@ -187,31 +187,32 @@ function MainForm({
                 style={{
                     borderRadius: '21px',
                 }}>
-                <CardContent className="p-2 space-y-4">
-                    <form className="display-flex height-20px flex-row" onSubmit={onSubmitEntry}>
+                <CardContent className="px-0 py-2 space-y-4">
+                    {/* rows share a 4-column grid so field edges line up */}
+                    <form className="flex flex-col gap-3" onSubmit={onSubmitEntry}>
                         <FormSelector
                             formData={input}
                             onFormChange={onFormChange}
                         />
 
-                        <div className="flex gap-2 mb-2">
-                            <Button
-                                type="button"
-                                id="reset-time-date"
-                                className="opacity-50"
-                                style={{ width: '50px' }}
-                                onClick={() => {
-                                    onFieldChange('time', format(new Date(Date.now()), 'HH:mm'));
-                                    onFieldChange('date', new Date().toLocaleDateString("en-CA"));
-                                }}>Reset</Button>
-                            <Input id="time" type="time" tabIndex={0} style={{ width: '45%' }}
+                        <div className="flex gap-2 items-center">
+                            <Input id="time" type="time" tabIndex={0} className="h-10 w-28 sm:w-36 appearance-none"
                                 value={input.time}
                                 onChange={(e) => onFieldChange('time', e.target.value)}
                             />
                             <DaySelector
+                                className="h-10 ml-0"
                                 selectedDate={input.date}
                                 onDateChange={(date) => onFieldChange('date', date)}
                             />
+                            <Button
+                                type="button"
+                                id="reset-time-date"
+                                className="opacity-50 h-8 w-14 px-0 text-xs ml-auto"
+                                onClick={() => {
+                                    onFieldChange('time', format(new Date(Date.now()), 'HH:mm'));
+                                    onFieldChange('date', new Date().toLocaleDateString("en-CA"));
+                                }}>Reset</Button>
                         </div>
 
                         <InputTypes
@@ -219,15 +220,15 @@ function MainForm({
                             onFieldChange={onFieldChange}
                         />
 
-                        <div className="flex gap-2 items-end">
-                            <div className="grid grid-cols-1 gap-2" style={{ width: '100%' }}>
+                        <div className="grid grid-cols-4 gap-2 items-end">
+                            <div className="col-span-3 grid grid-cols-1 gap-2">
                                 <Label className="font-bold">Notes</Label>
                                 <Textarea className="resize-none" rows={2} tabIndex={4}
                                     value={input.notes ?? ''}
                                     onChange={(e) => onFieldChange('notes', e.target.value)}
                                 />
                             </div>
-                            <div className="grid grid-cols-1 gap-2" style={{ width: '25%' }}>
+                            <div className="grid grid-cols-1 gap-2">
                                 {entryValue > 0 && (
                                     <div className="text-sm text-foreground text-center">
                                         ${entryValue.toFixed(2)}

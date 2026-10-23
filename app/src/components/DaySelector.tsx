@@ -4,13 +4,15 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
+import { cn } from "@/lib/utils"
 
 interface DaySelectorProps {
     selectedDate: string;
     onDateChange: (date: string) => void;
+    className?: string; // overrides the default trigger size
 }
 
-export default function DaySelector({ selectedDate, onDateChange }: DaySelectorProps) {
+export default function DaySelector({ selectedDate, onDateChange, className }: DaySelectorProps) {
     const [isOpen, setIsOpen] = useState(false)
     const dateObj = new Date(selectedDate + 'T00:00:00')
 
@@ -29,12 +31,7 @@ export default function DaySelector({ selectedDate, onDateChange }: DaySelectorP
                     type="button"
                     variant="outline"
                     size="sm"
-                    style={{
-                        marginLeft: '2px',
-                        height: '30px',
-                        width: '120px',
-                    }}
-                    className="justify-start text-left font-normal opacity-75"
+                    className={cn("ml-0.5 h-[30px] w-[120px] justify-start text-left font-normal opacity-75", className)}
                 >
                     <CalendarIcon className="mr-1 h-3 w-3" />
                     {format(dateObj, 'MMM dd')}

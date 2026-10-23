@@ -2,10 +2,13 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
 
 // custom imports
 import type { Entry, EntryType } from "@/types";
+
+// field widths: base = mobile, sm: = 640px+ (tune these to resize the rows)
+const HOURS_W = "w-14 sm:w-24";
+const CUSTOMER_W = "w-44 sm:w-56";
 
 
 interface InputTypesProps {
@@ -19,8 +22,8 @@ export default function InputTypes({ entry, onFieldChange }: InputTypesProps) {
         case 'flight':
             return (
                 <>
-                    <div className="flex gap-2 mb-3">
-                        <div className="grid grid-cols-1 gap-2" style={{ width: '15%' }}>
+                    <div className="flex gap-2">
+                        <div className={`${HOURS_W} grid grid-cols-1 gap-2`}>
                             <Label htmlFor="flight-hours" className="font-bold">Flight</Label>
                             <Input id="flight-hours" type="number" inputMode="decimal" tabIndex={1}
                                 min="0" step="0.1" placeholder="0.0"
@@ -28,8 +31,7 @@ export default function InputTypes({ entry, onFieldChange }: InputTypesProps) {
                                 onChange={(e) => onFieldChange('flight_hours', e.target.value)}
                             />
                         </div>
-                        <Separator orientation="vertical" />
-                        <div className="grid grid-cols-1 gap-2" style={{ width: '15%' }}>
+                        <div className={`${HOURS_W} grid grid-cols-1 gap-2`}>
                             <Label htmlFor="ground-hours" className="font-bold">Ground</Label>
                             <Input id="ground-hours" type="number" inputMode="decimal" tabIndex={2}
                                 min="0" step="0.1" placeholder="0.0"
@@ -37,8 +39,7 @@ export default function InputTypes({ entry, onFieldChange }: InputTypesProps) {
                                 onChange={(e) => onFieldChange('ground_hours', e.target.value)}
                             />
                         </div>
-                        <Separator orientation="vertical" />
-                        <div className="grid grid-cols-1 gap-2">
+                        <div className={`${CUSTOMER_W} grid grid-cols-1 gap-2`}>
                             <Label htmlFor="customer" className="font-bold">Customer</Label>
                             <Input id="customer" type="text" tabIndex={3}
                                 value={entry.customer ?? ''}
@@ -51,8 +52,8 @@ export default function InputTypes({ entry, onFieldChange }: InputTypesProps) {
         case 'sim':
             return (
                 <>
-                    <div className="flex gap-2 mb-3">
-                        <div className="grid grid-cols-1 gap-2" style={{ width: '15%' }}>
+                    <div className="flex gap-2">
+                        <div className={`${HOURS_W} grid grid-cols-1 gap-2`}>
                             <Label htmlFor="sim-hours" className="font-bold">Sim</Label>
                             <Input id="sim-hours" type="number" inputMode="decimal" tabIndex={1}
                                 min="0" step="0.1" placeholder="0.0"
@@ -60,8 +61,7 @@ export default function InputTypes({ entry, onFieldChange }: InputTypesProps) {
                                 onChange={(e) => onFieldChange('sim_hours', e.target.value)}
                             />
                         </div>
-                        <Separator orientation="vertical" />
-                        <div className="grid grid-cols-1 gap-2" style={{ width: '15%' }}>
+                        <div className={`${HOURS_W} grid grid-cols-1 gap-2`}>
                             <Label htmlFor="ground-hours" className="font-bold">Ground</Label>
                             <Input id="ground-hours" type="number" inputMode="decimal" tabIndex={2}
                                 min="0" step="0.1" placeholder="0.0"
@@ -69,8 +69,7 @@ export default function InputTypes({ entry, onFieldChange }: InputTypesProps) {
                                 onChange={(e) => onFieldChange('ground_hours', e.target.value)}
                             />
                         </div>
-                        <Separator orientation="vertical" />
-                        <div className="grid grid-cols-1 gap-2">
+                        <div className={`${CUSTOMER_W} grid grid-cols-1 gap-2`}>
                             <Label htmlFor="customer" className="font-bold">Customer</Label>
                             <Input id="customer" type="text" tabIndex={3}
                                 value={entry.customer ?? ''}
@@ -83,8 +82,8 @@ export default function InputTypes({ entry, onFieldChange }: InputTypesProps) {
         case 'ground':
             return (
                 <>
-                    <div className="flex gap-2 mb-3">
-                        <div className="grid grid-cols-1 gap-2" style={{ width: '15%' }}>
+                    <div className="flex gap-2">
+                        <div className={`${HOURS_W} grid grid-cols-1 gap-2`}>
                             <Label htmlFor="ground-hours" className="font-bold">Ground</Label>
                             <Input id="ground-hours" type="number" inputMode="decimal" tabIndex={1}
                                 min="0" step="0.1" placeholder="0.0"
@@ -92,8 +91,7 @@ export default function InputTypes({ entry, onFieldChange }: InputTypesProps) {
                                 onChange={(e) => onFieldChange('ground_hours', e.target.value)}
                             />
                         </div>
-                        <Separator orientation="vertical" />
-                        <div className="grid grid-cols-1 gap-2">
+                        <div className={`${CUSTOMER_W} grid grid-cols-1 gap-2`}>
                             <Label htmlFor="customer" className="font-bold">Customer</Label>
                             <Input id="customer" type="text" tabIndex={2}
                                 value={entry.customer ?? ''}
@@ -106,8 +104,8 @@ export default function InputTypes({ entry, onFieldChange }: InputTypesProps) {
         case 'admin':
             return (
                 <>
-                    <div className="flex gap-2 mb-3">
-                        <div className="grid grid-cols-1 gap-2" style={{ width: '15%' }}>
+                    <div className="flex gap-2">
+                        <div className={`${HOURS_W} grid grid-cols-1 gap-2`}>
                             <Label htmlFor="admin-hours" className="font-bold">Admin</Label>
                             <Input id="admin-hours" type="number" inputMode="decimal" tabIndex={2}
                                 min="0" step="0.1" placeholder="0.0"
@@ -116,7 +114,7 @@ export default function InputTypes({ entry, onFieldChange }: InputTypesProps) {
                                 onChange={(e) => onFieldChange('admin_hours', e.target.value)}
                             />
                         </div>
-                        <div className="grid grid-cols-1 gap-5" style={{ width: '25%', justifyItems: 'center' }}>
+                        <div className={`${HOURS_W} grid grid-cols-1 gap-5`} style={{ justifyItems: 'center' }}>
                             <Label htmlFor="ride-count-switch" className="font-bold">Rides</Label>
                             <Switch id="ride-count-switch" style={{ scale: '1.7' }} checked={rideCountEnabled}
                                 onCheckedChange={(checked) => {
@@ -129,7 +127,7 @@ export default function InputTypes({ entry, onFieldChange }: InputTypesProps) {
                                     }
                                 }} />
                         </div>
-                        <div className="grid grid-cols-1 gap-2" style={{ width: '15%' }}>
+                        <div className={`${HOURS_W} grid grid-cols-1 gap-2`}>
                             <Label htmlFor="ride-count" className="font-bold">Count</Label>
                             <Input id="ride-count" type="number" inputMode="numeric" tabIndex={2}
                                 min="0" step="1" placeholder="0"

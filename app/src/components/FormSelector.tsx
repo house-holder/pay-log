@@ -8,27 +8,13 @@ interface FormTypeProps {
 
 export default function FormSelector({ formData, onFormChange }: FormTypeProps) {
     return (
-        <div
-            className="buttonRow"
-            id="form-selector"
-            style={{
-                display: 'flex',
-                height: '40px',
-                flexDirection: 'row',
-                gap: '4px',
-                marginBottom: '20px',
-                marginTop: '0px',
-                justifyContent: 'center'
-            }}>
+        <div className="grid grid-cols-5 gap-1 mb-1" id="form-selector">
             {(['flight', 'ground', 'sim', 'admin', 'misc'] as EntryType[]).map(type => (
                 <Button
                     key={type}
                     type="button"
-                    style={{
-                        height: '50px'
-                    }}
                     variant={formData.type === type ? "default" : "outline"}
-                    className={formData.type === type ? "opacity-75" : "opacity-50"}
+                    className={`h-11 px-1 ${formData.type === type ? "opacity-75" : "opacity-50"}`}
                     onClick={() => onFormChange(type)}
                 >
                     {type.charAt(0).toUpperCase() + type.slice(1)}
