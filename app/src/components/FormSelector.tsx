@@ -23,6 +23,7 @@ export default function FormSelector({ formData, onFormChange }: FormTypeProps) 
             {(['flight', 'ground', 'sim', 'admin', 'misc'] as EntryType[]).map(type => (
                 <Button
                     key={type}
+                    type="button"
                     style={{
                         height: '50px'
                     }}

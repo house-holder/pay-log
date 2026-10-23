@@ -188,7 +188,7 @@ function MainForm({
                     borderRadius: '21px',
                 }}>
                 <CardContent className="p-2 space-y-4">
-                    <div className="display-flex height-20px flex-row">
+                    <form className="display-flex height-20px flex-row" onSubmit={onSubmitEntry}>
                         <FormSelector
                             formData={input}
                             onFormChange={onFormChange}
@@ -196,6 +196,7 @@ function MainForm({
 
                         <div className="flex gap-2 mb-2">
                             <Button
+                                type="button"
                                 id="reset-time-date"
                                 className="opacity-50"
                                 style={{ width: '50px' }}
@@ -232,14 +233,11 @@ function MainForm({
                                         ${entryValue.toFixed(2)}
                                     </div>
                                 )}
-                                <Button id="submit-entry" className="h-16"
-                                    onClick={(e) => {
-                                        onSubmitEntry(e);
-                                    }}
+                                <Button id="submit-entry" className="h-16" type="submit"
                                 >{isEditMode ? 'Update' : 'Submit'}</Button>
                             </div>
                         </div>
-                    </div>
+                    </form>
 
                     <div className="flex gap-2">
                         <div className="bg-muted/50 rounded-lg p-4" style={{ width: '50%' }}>

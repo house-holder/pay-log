@@ -26,6 +26,7 @@ export default function DaySelector({ selectedDate, onDateChange }: DaySelectorP
         <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
                 <Button
+                    type="button"
                     variant="outline"
                     size="sm"
                     style={{
